@@ -54,6 +54,7 @@ export default function SaleForm({ products, onSubmit, initialData, onCancel }: 
       product_name: `${selectedProduct.product_name} - ${selectedProduct.variation_name}`,
       quantity: parseInt(String(formData.quantity)),
       unit_price: selectedProduct.sale_price,
+      unit_cost: selectedProduct.total_cost,
       total_revenue: selectedProduct.sale_price * parseInt(String(formData.quantity)),
       total_cost: selectedProduct.total_cost * parseInt(String(formData.quantity)),
       total_profit: (selectedProduct.sale_price - selectedProduct.total_cost) * parseInt(String(formData.quantity)),
