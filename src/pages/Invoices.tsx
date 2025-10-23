@@ -144,13 +144,21 @@ function InvoiceForm({ suppliers, initialData, onSubmit, onCancel }: any) {
     supplier_id: "",
     supplier_name: "",
     total_value: 0,
-    issue_date: new Date().toISOString().split('T')[0]
+    issue_date: new Date().toISOString().split('T')[0],
+    document_url: ""
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
 
   return (
     <Card className="mb-6">
       <CardHeader className="bg-gradient-to-r from-blue-600 to-green-600 text-white">
-        <CardTitle>Nova Nota Fiscal</CardTitle>
+        <CardTitle>{initialData ? 'Editar' : 'Nova'} Nota Fiscal</CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-4">
@@ -208,6 +216,22 @@ function InvoiceForm({ suppliers, initialData, onSubmit, onCancel }: any) {
                 onChange={(e) => setFormData({ ...formData, issue_date: e.target.value })}
               />
             </div>
+          </div>
+
+          <div>
+            <Label>Anexar Documento</Label>
+            <div className="flex items-center gap-3 mt-2">
+              <Input
+                type="file"
+                onChange={handleFileChange}
+                accept=".pdf,.jpg,.jpeg,.png"
+                className="cursor-pointer"
+              />
+              {selectedFile && (
+                <span className="text-sm text-slate-600">{selectedFile.name}</span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 mt-1">Nenhum arquivo escolhido</p>
           </div>
 
           <div className="flex gap-3 justify-end">

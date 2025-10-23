@@ -144,16 +144,37 @@ function AssetForm({ initialData, onSubmit, onCancel }: any) {
     maintenance_history: []
   });
 
+  const addMaintenanceEntry = () => {
+    setFormData({
+      ...formData,
+      maintenance_history: [
+        ...(formData.maintenance_history || []),
+        { description: "", cost: 0, date: new Date().toISOString().split('T')[0] }
+      ]
+    });
+  };
+
+  const updateMaintenanceEntry = (index: number, field: string, value: any) => {
+    const updated = [...(formData.maintenance_history || [])];
+    updated[index] = { ...updated[index], [field]: value };
+    setFormData({ ...formData, maintenance_history: updated });
+  };
+
+  const removeMaintenanceEntry = (index: number) => {
+    const updated = formData.maintenance_history.filter((_: any, i: number) => i !== index);
+    setFormData({ ...formData, maintenance_history: updated });
+  };
+
   return (
     <Card className="mb-6">
       <CardHeader className="bg-gradient-to-r from-blue-600 to-green-600 text-white">
-        <CardTitle>Editar Ativo</CardTitle>
+        <CardTitle>{initialData ? 'Editar' : 'Novo'} Ativo</CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label>Nome</Label>
+              <Label>Nome *</Label>
               <Input
                 value={formData.asset_name}
                 onChange={(e) => setFormData({ ...formData, asset_name: e.target.value })}
@@ -209,6 +230,55 @@ function AssetForm({ initialData, onSubmit, onCancel }: any) {
                 onChange={(e) => setFormData({ ...formData, acquisition_date: e.target.value })}
               />
             </div>
+          </div>
+
+          <div className="border-t pt-4 mt-4">
+            <div className="flex justify-between items-center mb-3">
+              <Label className="text-base font-semibold">Histórico de Manutenção</Label>
+              <Button type="button" onClick={addMaintenanceEntry} size="sm" variant="outline">
+                + Adicionar
+              </Button>
+            </div>
+            
+            {formData.maintenance_history?.map((entry: any, index: number) => (
+              <div key={index} className="grid md:grid-cols-[2fr,1fr,1fr,auto] gap-3 mb-3 p-3 bg-slate-50 rounded-lg">
+                <div>
+                  <Label className="text-xs">Descrição</Label>
+                  <Input
+                    value={entry.description}
+                    onChange={(e) => updateMaintenanceEntry(index, 'description', e.target.value)}
+                    placeholder="Descrição da manutenção"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Custo (R$)</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={entry.cost}
+                    onChange={(e) => updateMaintenanceEntry(index, 'cost', parseFloat(e.target.value) || 0)}
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Data</Label>
+                  <Input
+                    type="date"
+                    value={entry.date}
+                    onChange={(e) => updateMaintenanceEntry(index, 'date', e.target.value)}
+                  />
+                </div>
+                <div className="flex items-end">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeMaintenanceEntry(index)}
+                  >
+                    <Trash2 className="w-4 h-4 text-red-600" />
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="flex gap-3 justify-end">
