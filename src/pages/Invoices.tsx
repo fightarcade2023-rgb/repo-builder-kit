@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Edit, FileText } from "lucide-react";
+import { Trash2, Edit, FileText, Copy } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -52,6 +52,11 @@ export default function Invoices() {
       toast.success("Nota fiscal excluída com sucesso!");
     },
   });
+
+  const handleClone = async (invoice: any) => {
+    const { id, created_date, updated_date, ...clonedData } = invoice;
+    await createMutation.mutateAsync(clonedData);
+  };
 
   return (
     <div className="p-4 md:p-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
@@ -108,29 +113,22 @@ export default function Invoices() {
                       {invoice.issue_date ? format(new Date(invoice.issue_date), "dd/MM/yyyy") : "-"}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => { setEditingInvoice(invoice); setShowForm(true); }}
-                      >
-                        <Edit className="w-4 h-4 text-blue-600" />
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="ghost" size="icon" onClick={() => handleClone(invoice)} title="Clonar">
+                          <Copy className="w-4 h-4 text-gray-600" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => { setEditingInvoice(invoice); setShowForm(true); }} title="Editar">
+                          <Edit className="w-4 h-4 text-blue-600" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => { if (window.confirm("Deseja excluir esta nota fiscal?")) { deleteMutation.mutate(invoice.id); }}} title="Excluir">
+                          <Trash2 className="w-4 h-4 text-red-600" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          if (window.confirm("Deseja excluir esta nota fiscal?")) {
-                            deleteMutation.mutate(invoice.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           </CardContent>
         </Card>
       </div>

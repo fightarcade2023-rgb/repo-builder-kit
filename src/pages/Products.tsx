@@ -59,14 +59,13 @@ export default function Products() {
     setShowForm(true);
   };
 
-  const handleClone = (product: any) => {
+  const handleClone = async (product: any) => {
     const { id, created_date, updated_date, ...clonedData } = product;
-    setEditingProduct({
+    const clonedProduct = {
       ...clonedData,
-      product_name: clonedData.product_name,
-      variation_name: `${clonedData.variation_name} (Cópia)`,
-    });
-    setShowForm(true);
+      product_name: `${clonedData.product_name} (Cópia)`,
+    };
+    await createMutation.mutateAsync(clonedProduct);
   };
 
   const handleDelete = (id: string) => {

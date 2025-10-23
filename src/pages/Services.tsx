@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2, Edit, Wrench } from "lucide-react";
+import { Trash2, Edit, Wrench, Copy } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -48,6 +48,11 @@ export default function Services() {
       toast.success("Serviço excluído com sucesso!");
     },
   });
+
+  const handleClone = async (service: any) => {
+    const { id, created_date, updated_date, ...clonedData } = service;
+    await createMutation.mutateAsync(clonedData);
+  };
 
   const totalRevenue = services.reduce((sum: number, s: any) => sum + (s.total_value || 0), 0);
 
@@ -141,24 +146,36 @@ export default function Services() {
                       R$ {service.total_value?.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => { setEditingService(service); setShowForm(true); }}
-                      >
-                        <Edit className="w-4 h-4 text-blue-600" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          if (window.confirm("Deseja excluir este serviço?")) {
-                            deleteMutation.mutate(service.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600" />
-                      </Button>
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleClone(service)}
+                          title="Clonar"
+                        >
+                          <Copy className="w-4 h-4 text-gray-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => { setEditingService(service); setShowForm(true); }}
+                          title="Editar"
+                        >
+                          <Edit className="w-4 h-4 text-blue-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            if (window.confirm("Deseja excluir este serviço?")) {
+                              deleteMutation.mutate(service.id);
+                            }
+                          }}
+                          title="Excluir"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

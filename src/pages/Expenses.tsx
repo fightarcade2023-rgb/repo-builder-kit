@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Edit, DollarSign } from "lucide-react";
+import { Trash2, Edit, DollarSign, Copy } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -49,6 +49,11 @@ export default function Expenses() {
       toast.success("Despesa excluída com sucesso!");
     },
   });
+
+  const handleClone = async (expense: any) => {
+    const { id, created_date, updated_date, ...clonedData } = expense;
+    await createMutation.mutateAsync(clonedData);
+  };
 
   const totalExpenses = expenses.reduce((sum: number, e: any) => sum + (e.value || 0), 0);
   const fixedExpenses = expenses.filter((e: any) => e.category === 'fixo').reduce((sum: number, e: any) => sum + (e.value || 0), 0);
@@ -158,24 +163,36 @@ export default function Expenses() {
                       R$ {expense.value?.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => { setEditingExpense(expense); setShowForm(true); }}
-                      >
-                        <Edit className="w-4 h-4 text-blue-600" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          if (window.confirm("Deseja excluir esta despesa?")) {
-                            deleteMutation.mutate(expense.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600" />
-                      </Button>
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleClone(expense)}
+                          title="Clonar"
+                        >
+                          <Copy className="w-4 h-4 text-gray-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => { setEditingExpense(expense); setShowForm(true); }}
+                          title="Editar"
+                        >
+                          <Edit className="w-4 h-4 text-blue-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            if (window.confirm("Deseja excluir esta despesa?")) {
+                              deleteMutation.mutate(expense.id);
+                            }
+                          }}
+                          title="Excluir"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

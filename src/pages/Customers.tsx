@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Edit, Trash2, Users } from "lucide-react";
+import { Plus, Edit, Trash2, Users, Copy } from "lucide-react";
 
 export default function Customers() {
   const [showForm, setShowForm] = useState(false);
@@ -81,6 +81,15 @@ export default function Customers() {
     if (window.confirm("Tem certeza que deseja excluir este cliente?")) {
       deleteMutation.mutate(id);
     }
+  };
+
+  const handleClone = async (customer: any) => {
+    const { id, created_date, updated_date, ...clonedData } = customer;
+    const clonedCustomer = {
+      ...clonedData,
+      name: `${clonedData.name} (Cópia)`,
+    };
+    await createMutation.mutateAsync(clonedCustomer);
   };
 
   return (
@@ -196,28 +205,38 @@ export default function Customers() {
                       <TableCell>{customer.email || "-"}</TableCell>
                       <TableCell>{customer.phone || "-"}</TableCell>
                       <TableCell>{customer.address || "-"}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(customer)}
-                          >
-                            <Edit className="w-4 h-4 text-blue-600" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(customer.id)}
-                          >
-                            <Trash2 className="w-4 h-4 text-red-600" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                          <TableCell className="text-right">
+                            <div className="flex gap-2 justify-end">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleClone(customer)}
+                                title="Clonar"
+                              >
+                                <Copy className="w-4 h-4 text-gray-600" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEdit(customer)}
+                                title="Editar"
+                              >
+                                <Edit className="w-4 h-4 text-blue-600" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDelete(customer.id)}
+                                title="Excluir"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
             </div>
           </CardContent>
         </Card>

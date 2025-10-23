@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2, Edit } from "lucide-react";
+import { Trash2, Edit, Copy } from "lucide-react";
 import { format } from "date-fns";
 import SaleForm from "../components/sales/SaleForm";
 
@@ -67,6 +67,11 @@ export default function Sales() {
     setEditingSale(null);
   };
 
+  const handleClone = async (sale: any) => {
+    const { id, created_date, updated_date, ...clonedData } = sale;
+    await createMutation.mutateAsync(clonedData);
+  };
+
   return (
     <div className="p-4 md:p-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -122,21 +127,33 @@ export default function Sales() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEdit(sale)}
-                              className="mr-1"
-                            >
-                              <Edit className="w-4 h-4 text-blue-600" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDelete(sale.id)}
-                            >
-                              <Trash2 className="w-4 h-4 text-red-600" />
-                            </Button>
+                            <div className="flex gap-2 justify-end">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleClone(sale)}
+                                title="Clonar"
+                              >
+                                <Copy className="w-4 h-4 text-gray-600" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEdit(sale)}
+                                className="mr-1"
+                                title="Editar"
+                              >
+                                <Edit className="w-4 h-4 text-blue-600" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDelete(sale.id)}
+                                title="Excluir"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}

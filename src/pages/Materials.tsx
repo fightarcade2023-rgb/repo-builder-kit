@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Edit, Package, AlertTriangle } from "lucide-react";
+import { Trash2, Edit, Package, AlertTriangle, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Materials() {
@@ -53,6 +53,15 @@ export default function Materials() {
       toast.success("Material excluído com sucesso!");
     },
   });
+
+  const handleClone = async (material: any) => {
+    const { id, created_date, updated_date, ...clonedData } = material;
+    const clonedMaterial = {
+      ...clonedData,
+      material_name: `${clonedData.material_name} (Cópia)`,
+    };
+    await createMutation.mutateAsync(clonedMaterial);
+  };
 
   const lowStockMaterials = materials.filter((m: any) => m.quantity <= m.minimum_quantity);
   const totalValue = materials.reduce((sum: number, m: any) => sum + (m.quantity * m.unit_cost), 0);
@@ -188,24 +197,36 @@ export default function Materials() {
                     </TableCell>
                     <TableCell>{material.supplier || "-"}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => { setEditingMaterial(material); setShowForm(true); }}
-                      >
-                        <Edit className="w-4 h-4 text-blue-600" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          if (window.confirm("Deseja excluir este material?")) {
-                            deleteMutation.mutate(material.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600" />
-                      </Button>
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleClone(material)}
+                          title="Clonar"
+                        >
+                          <Copy className="w-4 h-4 text-gray-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => { setEditingMaterial(material); setShowForm(true); }}
+                          title="Editar"
+                        >
+                          <Edit className="w-4 h-4 text-blue-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            if (window.confirm("Deseja excluir este material?")) {
+                              deleteMutation.mutate(material.id);
+                            }
+                          }}
+                          title="Excluir"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

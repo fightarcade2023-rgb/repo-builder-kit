@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2, Edit, Truck } from "lucide-react";
+import { Trash2, Edit, Truck, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Suppliers() {
@@ -46,6 +46,15 @@ export default function Suppliers() {
       toast.success("Fornecedor excluído com sucesso!");
     },
   });
+
+  const handleClone = async (supplier: any) => {
+    const { id, created_date, updated_date, ...clonedData } = supplier;
+    const clonedSupplier = {
+      ...clonedData,
+      supplier_name: `${clonedData.supplier_name} (Cópia)`,
+    };
+    await createMutation.mutateAsync(clonedSupplier);
+  };
 
   return (
     <div className="p-4 md:p-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
@@ -99,24 +108,36 @@ export default function Suppliers() {
                     <TableCell>{supplier.email || "-"}</TableCell>
                     <TableCell>{supplier.phone || "-"}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => { setEditingSupplier(supplier); setShowForm(true); }}
-                      >
-                        <Edit className="w-4 h-4 text-blue-600" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          if (window.confirm("Deseja excluir este fornecedor?")) {
-                            deleteMutation.mutate(supplier.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600" />
-                      </Button>
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleClone(supplier)}
+                          title="Clonar"
+                        >
+                          <Copy className="w-4 h-4 text-gray-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => { setEditingSupplier(supplier); setShowForm(true); }}
+                          title="Editar"
+                        >
+                          <Edit className="w-4 h-4 text-blue-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            if (window.confirm("Deseja excluir este fornecedor?")) {
+                              deleteMutation.mutate(supplier.id);
+                            }
+                          }}
+                          title="Excluir"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

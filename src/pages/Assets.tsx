@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Edit, Truck } from "lucide-react";
+import { Trash2, Edit, Truck, Copy } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -47,6 +47,15 @@ export default function Assets() {
       toast.success("Ativo excluído com sucesso!");
     },
   });
+
+  const handleClone = async (asset: any) => {
+    const { id, created_date, updated_date, ...clonedData } = asset;
+    const clonedAsset = {
+      ...clonedData,
+      asset_name: `${clonedData.asset_name} (Cópia)`,
+    };
+    await createMutation.mutateAsync(clonedAsset);
+  };
 
   return (
     <div className="p-4 md:p-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
@@ -102,29 +111,22 @@ export default function Assets() {
                       {asset.acquisition_date ? format(new Date(asset.acquisition_date), "dd/MM/yyyy") : "-"}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => { setEditingAsset(asset); setShowForm(true); }}
-                      >
-                        <Edit className="w-4 h-4 text-blue-600" />
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="ghost" size="icon" onClick={() => handleClone(asset)} title="Clonar">
+                          <Copy className="w-4 h-4 text-gray-600" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => { setEditingAsset(asset); setShowForm(true); }} title="Editar">
+                          <Edit className="w-4 h-4 text-blue-600" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => { if (window.confirm("Deseja excluir este ativo?")) { deleteMutation.mutate(asset.id); }}} title="Excluir">
+                          <Trash2 className="w-4 h-4 text-red-600" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          if (window.confirm("Deseja excluir este ativo?")) {
-                            deleteMutation.mutate(asset.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           </CardContent>
         </Card>
       </div>

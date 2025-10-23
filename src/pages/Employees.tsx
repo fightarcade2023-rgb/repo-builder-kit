@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2, Edit, Users } from "lucide-react";
+import { Trash2, Edit, Users, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Employees() {
@@ -46,6 +46,15 @@ export default function Employees() {
       toast.success("Funcionário excluído com sucesso!");
     },
   });
+
+  const handleClone = async (employee: any) => {
+    const { id, created_date, updated_date, ...clonedData } = employee;
+    const clonedEmployee = {
+      ...clonedData,
+      name: `${clonedData.name} (Cópia)`,
+    };
+    await createMutation.mutateAsync(clonedEmployee);
+  };
 
   return (
     <div className="p-4 md:p-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
@@ -97,29 +106,22 @@ export default function Employees() {
                     <TableCell>{employee.position || "-"}</TableCell>
                     <TableCell>{employee.phone || "-"}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => { setEditingEmployee(employee); setShowForm(true); }}
-                      >
-                        <Edit className="w-4 h-4 text-blue-600" />
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="ghost" size="icon" onClick={() => handleClone(employee)} title="Clonar">
+                          <Copy className="w-4 h-4 text-gray-600" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => { setEditingEmployee(employee); setShowForm(true); }} title="Editar">
+                          <Edit className="w-4 h-4 text-blue-600" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => { if (window.confirm("Deseja excluir este funcionário?")) { deleteMutation.mutate(employee.id); }}} title="Excluir">
+                          <Trash2 className="w-4 h-4 text-red-600" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          if (window.confirm("Deseja excluir este funcionário?")) {
-                            deleteMutation.mutate(employee.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           </CardContent>
         </Card>
       </div>

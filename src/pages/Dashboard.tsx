@@ -81,8 +81,25 @@ export default function Dashboard() {
     <div className="p-4 md:p-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Dashboard</h1>
-          <p className="text-slate-600">Visão geral do seu negócio em tempo real</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Dashboard</h1>
+              <p className="text-slate-600">Visão geral do seu negócio em tempo real</p>
+            </div>
+            <Button
+              onClick={async () => {
+                const { createDemoData } = await import("@/utils/demoData");
+                const result = await createDemoData();
+                alert(result.message);
+                window.location.reload();
+              }}
+              variant="outline"
+              className="gap-2"
+            >
+              <Package className="w-4 h-4" />
+              Carregar Dados Demo
+            </Button>
+          </div>
         </div>
 
         <div className="mb-8">
