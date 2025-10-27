@@ -1,5 +1,5 @@
-// Base44 API Client Configuration
-const API_BASE_URL = 'https://app.base44.com/api/apps/68f14071a1d645bba1ee65fd';
+// Base44 API Client Configuration - Servidor Externo
+const API_BASE_URL = 'http://72.60.246.250:8087/api/apps/68f14071a1d645bba1ee65fd';
 const API_KEY = '8d3f4b6d3f1b494986e729dba9ef52a5';
 
 interface EntityConfig {

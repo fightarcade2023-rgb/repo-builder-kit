@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { DollarSign, TrendingUp, Package, ShoppingCart, Wrench, AlertTriangle, BarChart2, Receipt, ChevronRight } from "lucide-react";
+import { DollarSign, TrendingUp, ShoppingCart, Wrench, AlertTriangle, BarChart2, Receipt, ChevronRight, Monitor, Wallet } from "lucide-react";
 import StatsCard from "../components/dashboard/StatsCard";
 import TopProductsChart from "../components/dashboard/TopProductsChart";
 import AISearch from "../components/dashboard/AISearch";
@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { format, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const { data: sales = [] } = useQuery({
@@ -61,6 +62,16 @@ export default function Dashboard() {
 
   const lowStockMaterials = materials.filter(m => (m.quantity || 0) <= (m.minimum_quantity || 0));
 
+  // Carregar dados da gestão de caixa
+  const cashMovements = (() => {
+    const stored = localStorage.getItem('cash_movements');
+    return stored ? JSON.parse(stored) : [];
+  })();
+  
+  const totalEntradas = cashMovements.filter((m: any) => m.type === 'entrada').reduce((sum: number, m: any) => sum + m.value, 0);
+  const totalSaidas = cashMovements.filter((m: any) => m.type === 'saida').reduce((sum: number, m: any) => sum + m.value, 0);
+  const saldoEmCaixa = totalEntradas - totalSaidas;
+
   const productSales: Record<string, number> = {};
   sales.forEach(sale => {
     if (!productSales[sale.product_name]) {
@@ -80,58 +91,88 @@ export default function Dashboard() {
   return (
     <div className="p-4 md:p-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Dashboard</h1>
-              <p className="text-slate-600">Visão geral do seu negócio em tempo real</p>
-            </div>
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Dashboard</h1>
+            <p className="text-slate-600">Visão geral do seu negócio em tempo real</p>
+          </div>
+          <div className="flex gap-3">
             <Button
-              onClick={async () => {
-                const { createDemoData } = await import("@/utils/demoData");
-                const result = await createDemoData();
-                alert(result.message);
-                window.location.reload();
+              onClick={() => {
+                window.open('/products-to-restock', 'ProductsRestock', 'width=1920,height=1080');
+                toast("Monitor de produtos aberto!");
               }}
               variant="outline"
-              className="gap-2"
+              className="bg-yellow-600 text-white hover:bg-yellow-700"
             >
-              <Package className="w-4 h-4" />
-              Carregar Dados Demo
+              <Monitor className="w-4 h-4 mr-2" />
+              Monitor Produtos
+            </Button>
+            <Button
+              onClick={() => {
+                window.open('/production-display', 'ProductionDisplay', 'width=1920,height=1080');
+                toast("Monitor de produção aberto!");
+              }}
+              variant="outline"
+              className="bg-purple-600 text-white hover:bg-purple-700"
+            >
+              <Monitor className="w-4 h-4 mr-2" />
+              Monitor Produção
+            </Button>
+            <Button
+              onClick={() => {
+                window.open('/monitor-display', 'MonitorDisplay', 'width=1920,height=1080');
+                toast("Monitor de gestão aberto!");
+              }}
+              variant="outline"
+              className="bg-indigo-600 text-white hover:bg-indigo-700"
+            >
+              <Monitor className="w-4 h-4 mr-2" />
+              Monitor Gestão
             </Button>
           </div>
         </div>
+      </div>
 
         <div className="mb-8">
           <AISearch />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <Link to="/cash-management">
           <StatsCard
-            title="Receita Total (Geral)"
-            value={`R$ ${totalRevenueWithServices.toFixed(2)}`}
-            icon={DollarSign}
+            title="Saldo em Caixa"
+            value={`R$ ${saldoEmCaixa.toFixed(2)}`}
+            icon={Wallet}
             bgColor="bg-green-500"
           />
-          <StatsCard
-            title="Lucro Líquido (Geral)"
-            value={`R$ ${totalProfit.toFixed(2)}`}
-            icon={TrendingUp}
-            bgColor="bg-blue-500"
-          />
-          <StatsCard
-            title="Total Despesas (Geral)"
-            value={`R$ ${totalExpenses.toFixed(2)}`}
-            icon={Receipt}
-            bgColor="bg-red-500"
-          />
-          <StatsCard
-            title="Produtos Cadastrados"
-            value={products.length}
-            icon={Package}
-            bgColor="bg-orange-500"
-          />
-        </div>
+        </Link>
+        <StatsCard
+          title="Receita Total (Geral)"
+          value={`R$ ${totalRevenueWithServices.toFixed(2)}`}
+          icon={DollarSign}
+          bgColor="bg-blue-500"
+        />
+        <StatsCard
+          title="Lucro Líquido (Geral)"
+          value={`R$ ${totalProfit.toFixed(2)}`}
+          icon={TrendingUp}
+          bgColor="bg-purple-500"
+        />
+        <StatsCard
+          title="Total Despesas (Geral)"
+          value={`R$ ${totalExpenses.toFixed(2)}`}
+          icon={Receipt}
+          bgColor="bg-red-500"
+        />
+        <StatsCard
+          title="Produtos Cadastrados"
+          value={products.length}
+          icon={TrendingUp}
+          bgColor="bg-orange-500"
+        />
+      </div>
 
         <Card className="shadow-lg border-0 mb-8 bg-gradient-to-r from-blue-600 to-green-600 text-white">
           <CardHeader>
